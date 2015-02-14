@@ -16,24 +16,27 @@ var gameScore = {
 
 var generateBoard = d3.select('.gameboard').append('svg:svg').attr('width', gameOptions.boardWidth).attr('height', gameOptions.boardHeight);
 
-var enemyProps = {
-  x: 55,
-  y: 66,
-  radius: 9
+
+var randomLocation = function() {
+  var location = {};
+  location.x = Math.random()*gameOptions.boardWidth;
+  location.y = Math.random()*gameOptions.boardHeight;
+  return location;
+};
+
+var getNewLocations = function(circles) {
+  for (var i = 0; i < circles.length; i++) {
+    var location = randomLocation();
+    circles[i].x = location.x;
+    circles[i].y = location.y;
+  }
 };
 
 var makeEnemies = function (){
   var enemies = [];
 
-  var randomLocation = function() {
-    var location = {};
-    location.x = Math.random()*gameOptions.boardWidth;
-    location.y = Math.random()*gameOptions.boardHeight;
-    return location;
-  };
-
   for (var i = 0; i < gameOptions.numEnemies; i++) {
-    var enemy = { radius: 9};
+    var enemy = { radius: 9, id: i };
     var location = randomLocation();
     enemy.x = location.x;
     enemy.y = location.y;
@@ -43,21 +46,48 @@ var makeEnemies = function (){
   return enemies;
 };
 
+var myEnemies = makeEnemies();
 
+var thePlayer = { radius: 23, id: 1001 };
+getNewLocations([thePlayer]);
 
-var addCircle = d3.select('svg').selectAll('circle')
-    //.selectAll('.enemyCircle')
-    .data( makeEnemies() )
+var moveEnemies = function () {
+  d3.select('svg').selectAll('circle')
+    .data( myEnemies, function(enemy) { return enemy.id; } )
+    .transition()
+    .duration(1000)
+    .attr('cx', function (enemy) {return enemy.x;} )
+    .attr('cy', function (enemy) {return enemy.y;} );
+};
+
+var addEnemies = d3.select('svg').selectAll('circle')
+    .data( myEnemies, function(enemy) { return enemy.id; } )
     .enter()
     .append('circle')
+    .attr('class', 'enemy')
     .attr('cx', function (enemy) {return enemy.x;} )
     .attr('cy', function (enemy) {return enemy.y;} )
     .attr('r', function (enemy) {return enemy.radius;} );
 
 
-/*
-d3.select('svg').selectAll(enemyCircles)
-  .data(enemies).enter();
-*/
+var addPlayer = d3.select('svg').selectAll('circle')
+    .data( [thePlayer], function(player) { return player.id; } )
+    .enter()
+    .append('circle')
+    .attr('fill', '#6576BF' )
+    .attr('class', 'player')
+    .attr('cx', function (player) {return player.x;} )
+    .attr('cy', function (player) {return player.y;} )
+    .attr('r', function (player) {return player.radius;} );
+
+
+var repeatTimeout = function () {
+  getNewLocations(myEnemies);
+  moveEnemies();
+  console.log('koz');
+  setTimeout (repeatTimeout, 2000);
+};
+
+repeatTimeout();
 
 

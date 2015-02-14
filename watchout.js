@@ -48,7 +48,7 @@ var makeEnemies = function (){
 
 var myEnemies = makeEnemies();
 
-var thePlayer = { radius: 23, id: 1001 };
+var thePlayer = { radius: 20, id: 1001 };
 getNewLocations([thePlayer]);
 
 var moveEnemies = function () {
@@ -69,6 +69,15 @@ var addEnemies = d3.select('svg').selectAll('circle')
     .attr('cy', function (enemy) {return enemy.y;} )
     .attr('r', function (enemy) {return enemy.radius;} );
 
+var dragmove = function(d){
+  var x = d3.event.x;
+  var y = d3.event.y;
+  console.log(x);
+  d3.select(this).attr('cx', x).attr('cy', y);
+};
+
+var drag = d3.behavior.drag().on('drag', dragmove);
+
 
 var addPlayer = d3.select('svg').selectAll('circle')
     .data( [thePlayer], function(player) { return player.id; } )
@@ -78,15 +87,16 @@ var addPlayer = d3.select('svg').selectAll('circle')
     .attr('class', 'player')
     .attr('cx', function (player) {return player.x;} )
     .attr('cy', function (player) {return player.y;} )
-    .attr('r', function (player) {return player.radius;} );
-
+    .attr('r', function (player) {return player.radius;})
+    .call(drag);
 
 var repeatTimeout = function () {
   getNewLocations(myEnemies);
   moveEnemies();
   console.log('koz');
-  setTimeout (repeatTimeout, 2000);
+  setTimeout (repeatTimeout, 1200);
 };
+
 
 repeatTimeout();
 

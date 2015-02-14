@@ -16,6 +16,16 @@ var gameScore = {
 
 var generateBoard = d3.select('.gameboard').append('svg:svg').attr('width', gameOptions.boardWidth).attr('height', gameOptions.boardHeight);
 
+var updateScore = function(){
+  return d3.select('.current').text(gameScore.currentScore.toString());
+};
+
+var updateHighScore = function(){
+  if (gameScore.currentScore > gameScore.highestScore){
+    gameScore.highestScore = gameScore.currentScore;
+  }
+  return gameScore.highestScore;
+};
 
 var randomLocation = function() {
   var location = {};
@@ -51,6 +61,26 @@ var myEnemies = makeEnemies();
 var thePlayer = { radius: 20, id: 1001 };
 getNewLocations([thePlayer]);
 
+
+// var onCollision = function(){
+//   updateHighScore();
+//   gameScore.currentScore = 0;
+//   console.log('hello');
+//   return updateScore();
+// };
+// var collide = function(enemy){
+//   return function(thePlayer){
+//     var radiusSum = parseFloat(enemy.attr('r')) + thePlayer.r;
+//     var xDiff = parseFloat(enemy.attr('cx')) - thePlayer.x;
+//     var yDiff = parseFloat(enemy.attr('cy')) - thePlayer.y;
+//     var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+//     if (separation < radiusSum){
+//       return onCollision();
+//     }
+//   };
+// };
+
+
 var moveEnemies = function () {
   d3.select('svg').selectAll('circle')
     .data( myEnemies, function(enemy) { return enemy.id; } )
@@ -67,12 +97,11 @@ var addEnemies = d3.select('svg').selectAll('circle')
     .attr('class', 'enemy')
     .attr('cx', function (enemy) {return enemy.x;} )
     .attr('cy', function (enemy) {return enemy.y;} )
-    .attr('r', function (enemy) {return enemy.radius;} );
+    .attr('r', function (enemy) {return enemy.radius;});
 
 var dragmove = function(d){
   var x = d3.event.x;
   var y = d3.event.y;
-  console.log(x);
   d3.select(this).attr('cx', x).attr('cy', y);
 };
 
@@ -93,7 +122,6 @@ var addPlayer = d3.select('svg').selectAll('circle')
 var repeatTimeout = function () {
   getNewLocations(myEnemies);
   moveEnemies();
-  console.log('koz');
   setTimeout (repeatTimeout, 1200);
 };
 

@@ -58,27 +58,65 @@ var makeEnemies = function (){
 
 var myEnemies = makeEnemies();
 
-var thePlayer = { radius: 20, id: 1001 };
+var thePlayer = { radius: 9, id: 1001 };
 getNewLocations([thePlayer]);
 
 
-// var onCollision = function(){
-//   updateHighScore();
-//   gameScore.currentScore = 0;
-//   console.log('hello');
-//   return updateScore();
-// };
-// var collide = function(enemy){
-//   return function(thePlayer){
-//     var radiusSum = parseFloat(enemy.attr('r')) + thePlayer.r;
-//     var xDiff = parseFloat(enemy.attr('cx')) - thePlayer.x;
-//     var yDiff = parseFloat(enemy.attr('cy')) - thePlayer.y;
-//     var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-//     if (separation < radiusSum){
-//       return onCollision();
-//     }
-//   };
-// };
+var onCollision = function(){
+  // debugger;
+  // updateHighScore();
+  // gameScore.currentScore = 0;
+  console.log('hello');
+  gameScore.numCollisions++;
+  // updateScore();
+};
+
+var checkForCollisions = function(){
+
+  var enemy, enemyX, enemyY, radiusSum, xDiff, yDiff, separation;
+  var enemyXarr = [];
+  var enemyYarr = [];
+  var collisionFlag = false;
+
+/*
+  addEnemies.forEach(
+    function(c) {
+      enemyXarr.push(c.attr('cx'));
+    }
+  );
+
+  addEnemies.forEach(
+    function(c) {
+      enemyYarr.push(c.attr('cy'));
+    }
+  );
+*/
+
+  for (var i = 0; i < myEnemies.length; i++) {
+    enemy = myEnemies[i];
+    radiusSum = enemy.radius + thePlayer.radius;
+
+    enemyX = d3.select('svg').selectAll('circle')
+      .data( [enemy], function(enemy) { return enemy.id; } )
+      .attr('cx');
+
+    enemyY = d3.select('svg').selectAll('circle')
+      .data( [enemy], function(enemy) { return enemy.id; } )
+      .attr('cy');
+
+    xDiff = enemyX - thePlayer.x;
+    yDiff = enemyY - thePlayer.y;
+
+    separation = Math.sqrt( Math.pow(xDiff, 2) + Math.pow(yDiff, 2) );
+
+    if (separation < radiusSum){
+      collisionFlag = true;
+    }
+  }
+
+  if (collisionFlag)
+    onCollision();
+};
 
 
 var moveEnemies = function () {
@@ -125,7 +163,12 @@ var repeatTimeout = function () {
   setTimeout (repeatTimeout, 1200);
 };
 
+var startCollisionTimer = function () {
+  checkForCollisions();
+  setTimeout (startCollisionTimer, 10);
+};
 
 repeatTimeout();
+startCollisionTimer();
 
 

@@ -17,7 +17,9 @@ var gameScore = {
 var generateBoard = d3.select('.gameboard').append('svg:svg').attr('width', gameOptions.boardWidth).attr('height', gameOptions.boardHeight);
 
 var updateScore = function(){
-  return d3.select('.current').text(gameScore.currentScore.toString());
+  d3.select('.current').text('Current Score: ' + gameScore.currentScore.toString());
+  d3.select('.collisions').text('Collisions: ' + gameScore.numCollisions.toString());
+  d3.select('.high').text('High Score: ' + gameScore.highestScore.toString());
 };
 
 var updateHighScore = function(){
@@ -25,6 +27,11 @@ var updateHighScore = function(){
     gameScore.highestScore = gameScore.currentScore;
   }
   return gameScore.highestScore;
+};
+
+var increaseScore = function(){
+  gameScore.currentScore+=1;
+  updateScore();
 };
 
 var randomLocation = function() {
@@ -67,7 +74,9 @@ var onCollision = function(){
   // updateHighScore();
   // gameScore.currentScore = 0;
   console.log('hello');
-  gameScore.numCollisions++;
+  updateHighScore();
+  gameScore.currentScore = 0;
+  gameScore.numCollisions+=1;
   // updateScore();
 };
 
@@ -161,6 +170,7 @@ var repeatTimeout = function () {
   getNewLocations(myEnemies);
   moveEnemies();
   setTimeout (repeatTimeout, 1200);
+  setInterval (increaseScore, 50);
 };
 
 var startCollisionTimer = function () {
